@@ -1,18 +1,16 @@
 <?php
 
-use App\Models\User;
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/login', function (Request $request) {
-    $user = User::where('email', $request->email)->first();
+Route::prefix('auth')->group(function () {
+    Route::post('login', [AuthController::class, 'login'])->name('login');
 
-    if (! $user || ! Hash::check($request->password, $user->password)) {
-        return response()->json(['message' => 'Credenciais inválidas'], 401);
-    }
-
-    return ['token' => $user->createToken('api-token')->plainTextToken];
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('refresh-token', [AuthController::class, 'refreshToken'])
+            ->name('refresh');
+    });
 });
 
 Route::get('/user', function (Request $request) {

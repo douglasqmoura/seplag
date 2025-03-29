@@ -47,6 +47,7 @@ return [
     */
 
     'expiration' => null,
+    'token_expiration' => env('TOKEN_EXPIRATION', 5),
 
     /*
     |--------------------------------------------------------------------------
