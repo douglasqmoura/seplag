@@ -14,5 +14,7 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::get('/user', function (Request $request) {
+    abort_if(! auth()->user()->tokenCan('gravar'), 403, 'Unauthorized');
+
     return $request->user();
 })->middleware('auth:sanctum');

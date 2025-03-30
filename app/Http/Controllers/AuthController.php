@@ -19,7 +19,8 @@ class AuthController extends Controller
         if (auth()->attempt($credentials)) {
             $user = auth()->user();
             $user->tokens()->delete();
-            $token = $user->createToken('api-token', ['*'], Carbon::now()->addMinutes(config('sanctum.token_expiration')));
+            $abilities = $user->admin ? ['*'] : [];
+            $token = $user->createToken('api-token', $abilities, Carbon::now()->addMinutes(config('sanctum.token_expiration')));
 
             return response()->json(['token' => $token->plainTextToken, 'expires_at' => $token->accessToken->expires_at->toDateTimeString()], 200);
         }
