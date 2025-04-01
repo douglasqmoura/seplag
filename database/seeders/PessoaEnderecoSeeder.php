@@ -16,5 +16,9 @@ class PessoaEnderecoSeeder extends Seeder
             'pes_id' => 1,
             'end_id' => 1,
         ]);
+        DB::table('pessoa_endereco')->insert([
+            'pes_id' => 2,
+            'end_id' => 2,
+        ]);
     }
 }

@@ -14,7 +14,7 @@ class UnidadeEnderecoSeeder extends Seeder
     {
         DB::table('unidade_endereco')->insert([
             'unid_id' => 1,
-            'end_id' => 1,
+            'end_id' => 3,
         ]);
     }
 }

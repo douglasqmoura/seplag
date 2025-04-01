@@ -12,11 +12,11 @@ class FotoPessoaSeeder extends Seeder
      */
     public function run(): void
     {
-        FotoPessoa::create([
-            'pes_id' => 1,
-            'fp_data' => now(),
-            'fp_bucket' => 'default',
-            'fp_hash' => 'abc123',
-        ]);
+        // FotoPessoa::create([
+        //     'pes_id' => 1,
+        //     'fp_data' => now(),
+        //     'fp_bucket' => 'default',
+        //     'fp_hash' => 'abc123',
+        // ]);
     }
 }

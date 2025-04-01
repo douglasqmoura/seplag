@@ -19,5 +19,12 @@ class PessoaSeeder extends Seeder
             'pes_mae' => 'Maria Silva',
             'pes_pai' => 'José Silva',
         ]);
+        Pessoa::create([
+            'pes_nome' => 'Maria Aparecida Antunes',
+            'pes_data_nascimento' => '1978-04-15',
+            'pes_sexo' => 'Feminino',
+            'pes_mae' => 'Tereza Antunes',
+            'pes_pai' => 'Roberto Antunes',
+        ]);
     }
 }

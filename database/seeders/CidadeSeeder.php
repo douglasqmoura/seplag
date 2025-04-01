@@ -13,5 +13,7 @@ class CidadeSeeder extends Seeder
     public function run(): void
     {
         Cidade::create(['cid_nome' => 'Alta Floresta', 'cid_uf' => 'MT']);
+        Cidade::create(['cid_nome' => 'Cuiabá', 'cid_uf' => 'MT']);
+        Cidade::create(['cid_nome' => 'Sinop', 'cid_uf' => 'MT']);
     }
 }
