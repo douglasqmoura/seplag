@@ -16,8 +16,6 @@ class FotoPessoaResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->fp_id,
-            'data' => $this->fp_data,
             'url_temporaria' => Storage::disk('s3')->temporaryUrl($this->fp_hash, now()->addMinutes(5)),
         ];
     }
