@@ -38,41 +38,29 @@ Este projeto implementa uma API RESTful desenvolvida com Laravel, como parte do 
     docker-compose up -d
     ```
 
-4. Acesse o container da aplicação (caso queira executar comandos Artisan):
+4. Acesse o container da aplicação:
 
     ```bash
-    docker exec -it app bash
+    docker-compose exec php bash
     ```
 
-5. Execute as migrations:
+5. Instale as dependencias do PHP:
+
     ```bash
-    php artisan migrate
+    composer install
     ```
 
----
+6. Dentro do container execute as migrations e seeds básicas:
 
-## 🔌 Endpoints Principais (exemplos)
+    ```bash
+    php artisan migrate --seed
+    ```
 
-Em construção. Abaixo um exemplo genérico de estrutura esperada:
-
-### `GET /api/servidores-temporarios`
-
-Retorna a lista de servidores temporários.
-
-### `POST /api/servidores-temporarios`
-
-Cadastra um novo servidor temporário.  
-**Body (JSON):**
-
-```json
-{
-    "pes_id": 1,
-    "st_data_admissao": "2023-01-10",
-    "st_data_demissao": "2023-12-01"
-}
-```
-
----
+7. Para visualizar as imagens armazenadas no Min.IO retornadas pela API, adicione um host local apontando para o endereço do serviço:
+    ```
+    #endereço host do servido no Min.IO rodando no container
+    127.0.0.1 minio
+    ```
 
 ## 🧪 Testes com Insomnia
 
@@ -91,8 +79,6 @@ Você pode testar todos os endpoints da API utilizando a collection abaixo no [I
     - `token`: (gerado após o login, já está incluído para teste local)
 
 Pronto! Agora você pode testar todos os endpoints da API de forma rápida e estruturada.
-
----
 
 ---
 
@@ -137,4 +123,4 @@ O projeto segue o modelo abaixo para gerenciamento de entidades como `pessoa`, `
 
 ## 📄 Licença
 
-Este projeto está licenciado sob os termos do edital SEPLAG/MT 002/2025.
+Este projeto foi desenvolvido exclusivamente como projeto prático do edital SEPLAG/MT 002/2025.
