@@ -24,4 +24,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('lotacao', LotacaoController::class);
 
     Route::get('consultas/servidores-efetivos/por-unidade/{unid_id}', [ConsultaServidorEfetivoController::class, 'porUnidade']);
+    Route::get('consultas/servidores-efetivos/endereco-funcional', [ConsultaServidorEfetivoController::class, 'enderecoFuncionalPorNome']);
 });
