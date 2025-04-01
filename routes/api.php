@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ServidorEfetivoController;
 use App\Http\Controllers\UnidadeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +14,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         ->name('refresh');
 
     Route::apiResource('unidades', UnidadeController::class);
+
+    Route::apiResource('servidor-efetivo', ServidorEfetivoController::class);
 
     Route::get('/user', function (Request $request) {
         abort_if(! auth()->user()->tokenCan('gravar'), 403, 'Unauthorized');
