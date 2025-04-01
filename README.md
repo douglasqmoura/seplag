@@ -26,40 +26,21 @@ Este projeto implementa uma API RESTful desenvolvida com Laravel, como parte do 
     cd <NOME_DA_PASTA>
     ```
 
-2. Crie o arquivo `.env`:
+2. Execute o script setup.sh:
 
     ```bash
-    cp .env.example .env
+    chmod +x setup.sh
+    ./setup.sh
     ```
 
-3. Suba os containers:
-
-    ```bash
-    docker-compose up -d
-    ```
-
-4. Acesse o container da aplicação:
-
-    ```bash
-    docker-compose exec php bash
-    ```
-
-5. Instale as dependencias do PHP:
-
-    ```bash
-    composer install
-    ```
-
-6. Dentro do container execute as migrations e seeds básicas:
-
-    ```bash
-    php artisan migrate --seed
-    ```
-
-7. Para visualizar as imagens armazenadas no Min.IO retornadas pela API, adicione um host local apontando para o endereço do serviço:
+3. Para visualizar as imagens armazenadas no Min.IO retornadas pela API, adicione um host local apontando para o endereço do serviço:
     ```
     #endereço host do servido no Min.IO rodando no container
     127.0.0.1 minio
+    ```
+4. Tudo pronto, o endpoint da API é:
+    ```
+    http://localhost/api
     ```
 
 ## 🧪 Testes com Insomnia
