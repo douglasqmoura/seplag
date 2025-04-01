@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pessoa extends Model
 {
     protected $table = 'pessoa';
+
     protected $primaryKey = 'pes_id';
 
     protected $fillable = [
@@ -17,7 +18,7 @@ class Pessoa extends Model
         'pes_pai',
     ];
 
-    public function enderecos()
+    public function endereco()
     {
         return $this->belongsToMany(Endereco::class, 'pessoa_endereco', 'pes_id', 'end_id');
     }
@@ -40,5 +41,10 @@ class Pessoa extends Model
     public function lotacoes()
     {
         return $this->hasMany(Lotacao::class, 'pes_id');
+    }
+
+    public function fotos()
+    {
+        return $this->hasMany(FotoPessoa::class, 'pes_id', 'pes_id');
     }
 }
