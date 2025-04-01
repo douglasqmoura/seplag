@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\FotoPessoaResource;
+use App\Helpers\PaginationHelper;
+use App\Http\Resources\ServidorEfetivoPorUnidadeResource;
 use App\Models\Lotacao;
-use Carbon\Carbon;
 
 class ConsultaServidorEfetivoController extends Controller
 {
@@ -13,24 +13,11 @@ class ConsultaServidorEfetivoController extends Controller
         try {
             $lotacoes = Lotacao::with(['pessoa.fotos', 'unidade'])
                 ->where('unid_id', $unid_id)
-                ->whereNull('lot_data_remocao')
-                ->get();
+                ->whereNull('lot_data_remocao');
 
-            $resultado = $lotacoes->map(function ($lotacao) {
-                $pessoa = $lotacao->pessoa;
-                $foto = $pessoa->fotos->last();
-
-                return [
-                    'nome' => $pessoa->pes_nome,
-                    'idade' => Carbon::parse($pessoa->pes_data_nascimento)->age,
-                    'unidade' => $lotacao->unidade->unid_nome,
-                    'foto' => new FotoPessoaResource($foto),
-                ];
-            });
-
-            return response()->json($resultado);
+            return PaginationHelper::paginate($lotacoes, ServidorEfetivoPorUnidadeResource::class);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Erro ao consultar servidores efetivos por unidade.'], 500);
+            return response()->json(['message' => 'Erro ao consultar servidores efetivos por unidade.', 'erro' => $e->getMessage()], 500);
         }
     }
 }
