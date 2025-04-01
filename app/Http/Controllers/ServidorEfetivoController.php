@@ -160,20 +160,19 @@ class ServidorEfetivoController extends Controller
                 if ($pessoa->fotos && $pessoa->fotos->count() > 0) {
                     foreach ($pessoa->fotos as $foto) {
                         // Remove o arquivo físico do bucket
-                        $files = Storage::disk('s3')->files($foto->fp_bucket);
+                        $files = Storage::disk('s3')->files('');
                         foreach ($files as $file) {
                             if (Str::startsWith(basename($file), $foto->fp_hash)) {
                                 Storage::disk('s3')->delete($file);
                             }
                         }
-                        // Remove o registro da foto do banco de dados
                         $foto->delete();
                     }
                 }
 
-                $servidor->delete();
-                $servidor->pessoa->endereco?->first()->delete();
+                $servidor->pessoa->endereco?->first()?->delete();
                 $servidor->pessoa->delete();
+                $servidor->delete();
 
                 return response()->json(['message' => 'Servidor efetivo excluído com sucesso.']);
             });
