@@ -17,11 +17,6 @@ class Unidade extends Model
         return $this->belongsToMany(Endereco::class, 'unidade_endereco', 'unid_id', 'end_id');
     }
 
-    public function getEnderecoAttribute()
-    {
-        return $this->getRelation('endereco')->first();
-    }
-
     public function lotacoes()
     {
         return $this->hasMany(Lotacao::class, 'unid_id');

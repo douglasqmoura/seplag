@@ -14,20 +14,11 @@ class UnidadeResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $endereco = $this->endereco;
-
         return [
             'id' => $this->unid_id,
             'nome' => $this->unid_nome,
             'sigla' => $this->unid_sigla,
-
-            'endereço' => $endereco
-                ? "{$endereco->end_tipo_logradouro} {$endereco->end_logradouro}, {$endereco->end_numero}"
-                : null,
-
-            'bairro' => $endereco->end_bairro ?? null,
-            'cidade' => $endereco->cidade->cid_nome ?? null,
-            'uf' => $endereco->cidade->cid_uf ?? null,
+            'endereco' => new EnderecoResource($this->whenLoaded('endereco')->first()),
         ];
     }
 }
