@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Helpers\PaginationHelper;
 use App\Http\Requests\ServidorEfetivoRequest;
 use App\Http\Resources\ServidorEfetivoResource;
-use App\Models\Cidade;
-use App\Models\Endereco;
 use App\Models\FotoPessoa;
-use App\Models\Pessoa;
 use App\Models\ServidorEfetivo;
+use App\Services\CidadeService;
+use App\Services\EnderecoService;
+use App\Services\FotoPessoaService;
+use App\Services\PessoaService;
 use App\Traits\VerificaPermissao;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,13 @@ use Illuminate\Support\Str;
 class ServidorEfetivoController extends Controller
 {
     use VerificaPermissao;
+
+    public function __construct(
+        protected CidadeService $cidadeService,
+        protected EnderecoService $enderecoService,
+        protected PessoaService $pessoaService,
+        protected FotoPessoaService $fotoPessoaService
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -43,33 +51,10 @@ class ServidorEfetivoController extends Controller
         try {
             return DB::transaction(function () use ($request) {
 
-                // Cria cidade
-                $cidade = Cidade::firstOrCreate([
-                    'cid_nome' => $request->input('cidade'),
-                    'cid_uf' => strtoupper($request->input('uf')),
-                ]);
+                $cidade = $this->cidadeService->store($request->toArray());
+                $endereco = $this->enderecoService->store($request->toArray(), $cidade);
+                $pessoa = $this->pessoaService->store($request->toArray(), $endereco);
 
-                // Cria endereço
-                $endereco = Endereco::create([
-                    'end_tipo_logradouro' => $request->input('tipo_logradouro'),
-                    'end_logradouro' => $request->input('logradouro'),
-                    'end_numero' => $request->input('numero'),
-                    'end_bairro' => $request->input('bairro'),
-                    'cid_id' => $cidade->cid_id,
-                ]);
-
-                // Cria pessoa
-                $pessoa = Pessoa::create([
-                    'pes_nome' => $request->input('nome'),
-                    'pes_data_nascimento' => $request->input('data_nascimento'),
-                    'pes_sexo' => $request->input('sexo'),
-                    'pes_mae' => $request->input('mae'),
-                    'pes_pai' => $request->input('pai'),
-                ]);
-
-                $pessoa->endereco()->attach($endereco->end_id);
-
-                // Cria servidor
                 $servidor = ServidorEfetivo::create([
                     'se_matricula' => $request->matricula,
                     'pes_id' => $pessoa->pes_id,
@@ -77,17 +62,7 @@ class ServidorEfetivoController extends Controller
 
                 if ($request->hasFile('fotos')) {
                     foreach ($request->file('fotos') as $foto) {
-                        $hash = Str::uuid()->toString();
-
-                        $path = "{$hash}." . $foto->getClientOriginalExtension();
-
-                        Storage::disk('s3')->put($path, file_get_contents($foto));
-                        FotoPessoa::create([
-                            'pes_id' => $pessoa->pes_id,
-                            'fp_bucket' => config('filesystems.disks.s3.bucket'),
-                            'fp_hash' => $path,
-                            'fp_data' => now()->toDateString(),
-                        ]);
+                        $this->fotoPessoaService->store($foto, $pessoa);
                     }
                 }
 
@@ -128,78 +103,36 @@ class ServidorEfetivoController extends Controller
 
                 $servidor = ServidorEfetivo::with('pessoa.endereco.cidade')->where('se_matricula', $matricula)->firstOrFail();
 
-                $cidade = Cidade::firstOrCreate([
-                    'cid_nome' => $request->cidade,
-                    'cid_uf' => strtoupper($request->uf),
-                ]);
+                $cidade = $this->cidadeService->store($request->toArray());
+                $endereco = $this->enderecoService->update($request->toArray(), $servidor->pessoa->endereco->first(), $cidade);
+                $servidor->pessoa->endereco()->syncWithoutDetaching($endereco->end_id);
+                $pessoa = $this->pessoaService->update($request->toArray(), $servidor->pessoa);
 
-                $endereco = $servidor->pessoa->endereco->first();
-                $dadosEndereco = [
-                    'end_tipo_logradouro' => $request->tipo_logradouro,
-                    'end_logradouro' => $request->logradouro,
-                    'end_numero' => $request->numero,
-                    'end_bairro' => $request->bairro,
-                    'cid_id' => $cidade->cid_id,
-                ];
-
-                if ($endereco) {
-                    $endereco->update($dadosEndereco);
-                } else {
-                    $endereco = Endereco::create($dadosEndereco);
-                    $servidor->pessoa->endereco()->attach($endereco->end_id);
+                if ($request->hasFile('fotos')) {
+                    foreach ($request->file('fotos') as $foto) {
+                        $this->fotoPessoaService->store($foto, $pessoa);
+                    }
                 }
-
-                $servidor->pessoa->update([
-                    'pes_nome' => $request->nome,
-                    'pes_data_nascimento' => $request->data_nascimento,
-                    'pes_sexo' => $request->sexo,
-                    'pes_mae' => $request->mae,
-                    'pes_pai' => $request->pai,
-                ]);
 
                 $servidor->update([
                     'se_matricula' => $request->matricula,
                 ]);
 
-                // Processa novas fotos se enviadas
-                if ($request->hasFile('fotos')) {
-                    foreach ($request->file('fotos') as $foto) {
-                        $hash = Str::uuid()->toString();
-
-                        $path = "{$hash}." . $foto->getClientOriginalExtension();
-
-                        Storage::disk('s3')->put($path, file_get_contents($foto));
-                        FotoPessoa::create([
-                            'pes_id' => $servidor->pessoa->pes_id,
-                            'fp_bucket' => config('filesystems.disks.s3.bucket'),
-                            'fp_hash' => $path,
-                            'fp_data' => now()->toDateString(),
-                        ]);
-                    }
-                }
-
                 // Se a requisição incluir fotos para excluir
                 if ($request->has('remover_fotos')) {
                     $idsParaRemover = $request->input('remover_fotos');
 
-                    // Busca as fotos pelo ID
                     $fotosParaRemover = FotoPessoa::whereIn('fp_id', $idsParaRemover)
                         ->where('pes_id', $servidor->pessoa->pes_id)
                         ->get();
 
                     foreach ($fotosParaRemover as $foto) {
-                        // Remove o arquivo do storage
-                        $path = "{$foto->fp_bucket}/{$foto->fp_hash}";
-
-                        // Tenta encontrar e remover qualquer arquivo que comece com o hash
-                        $files = Storage::disk('s3')->files($foto->fp_bucket);
+                        $files = Storage::disk('s3')->files('');
                         foreach ($files as $file) {
                             if (Str::startsWith(basename($file), $foto->fp_hash)) {
                                 Storage::disk('s3')->delete($file);
                             }
                         }
-
-                        // Remove o registro do banco de dados
                         $foto->delete();
                     }
                 }
