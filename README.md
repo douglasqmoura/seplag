@@ -1,66 +1,332 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📘 Documentação da API - Cadastro de Servidores
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Esta API foi desenvolvida para a gestão de servidores públicos, com cadastro e consulta de servidores efetivos e temporários, unidades, lotações e funcionalidades de autenticação.
 
-## About Laravel
+Abaixo estão descritos os principais endpoints, regras de autenticação e exemplos de requisição.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🔐 Autenticação
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### `POST /api/login`
 
-## Learning Laravel
+Autentica um usuário e retorna um token de acesso gerenciado pelo Laravel Sanctum.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+#### Body:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```json
+{
+    "email": "admin@seplag.mt.gov.br",
+    "password": "senha123"
+}
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+#### Response Esperada:
 
-## Laravel Sponsors
+```json
+{
+    "token": "20|YDeY948TAdhSeZkvQ12ZnnC2XTPMPPR5n7WHvdgJab8853a7",
+    "expires_at": "2025-04-01 20:58:30"
+}
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+> ⚠️ O token tem validade de **5 minutos**. Caso ainda esteja válido, você pode renová-lo com o endpoint abaixo:
 
-### Premium Partners
+### `POST /api/refresh-token`
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Renova a validade do token atual por mais 5 minutos (mantém o mesmo token ativo).
 
-## Contributing
+#### Headers:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+-   `Authorization: Bearer {token}`
+-   `Accept: application/json`
 
-## Code of Conduct
+#### Response Esperada:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```json
+{
+    "token": "20|YDeY948TAdhSeZkvQ12ZnnC2XTPMPPR5n7WHvdgJab8853a7",
+    "expires_at": "2025-04-01 21:03:30"
+}
+```
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 👥 Tipos de Usuário e Permissões
 
-## License
+A API possui dois tipos de usuários:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Tipo  | E-mail                 | Senha    | Permissões                            |
+| ----- | ---------------------- | -------- | ------------------------------------- |
+| Admin | admin@seplag.mt.gov.br | senha123 | Pode acessar e modificar (CRUD total) |
+| Comum | guest@seplag.mt.gov.br | senha123 | Acesso somente leitura (GET)          |
+
+⚠️ Apenas usuários do tipo **Admin** podem realizar operações de gravação: `POST`, `PUT`, `PATCH`, `DELETE`.
+
+---
+
+## 🏢 Unidades
+
+### `GET /api/unidade`
+
+Retorna a lista de unidades.
+
+### `GET /api/unidade/{id}`
+
+Retorna uma unidade específica.
+
+### `POST /api/unidade`
+
+Cria uma nova unidade.
+
+#### Body:
+
+```json
+{
+    "unid_nome": "Secretaria de Educação",
+    "unid_sigla": "SEDUC",
+    "end_tipo_logradouro": "Rua",
+    "end_logradouro": "Av. Historiador Rubens de Mendonça",
+    "end_numero": 1234,
+    "end_bairro": "CPA",
+    "cid_nome": "Cuiabá",
+    "cid_uf": "MT"
+}
+```
+
+### `PUT /api/unidade/{id}`
+
+Atualiza os dados de uma unidade.
+
+### `DELETE /api/unidade/{id}`
+
+Remove uma unidade.
+
+---
+
+## 👤 Servidor Efetivo
+
+### `GET /api/servidor-efetivo`
+
+Lista todos os servidores efetivos.
+
+### `GET /api/servidor-efetivo/{matricula}`
+
+Busca um servidor pelo número de matrícula.
+
+### `POST /api/servidor-efetivo`
+
+Cria um novo servidor efetivo.
+
+#### Body (multipart/form-data):
+
+| Campo           | Tipo    | Obrigatório | Descrição                            |
+| --------------- | ------- | ----------- | ------------------------------------ |
+| matricula       | string  | sim         | Matrícula do servidor                |
+| nome            | string  | sim         | Nome completo                        |
+| data_nascimento | date    | sim         | Data de nascimento (YYYY-MM-DD)      |
+| sexo            | string  | sim         | Masculino, Feminino ou Outro         |
+| mae             | string  | sim         | Nome da mãe                          |
+| pai             | string  | não         | Nome do pai                          |
+| tipo_logradouro | string  | sim         | Tipo do logradouro (Rua, Avenida...) |
+| logradouro      | string  | sim         | Nome da rua                          |
+| numero          | integer | sim         | Número do endereço                   |
+| bairro          | string  | sim         | Bairro                               |
+| cidade          | string  | sim         | Cidade                               |
+| uf              | string  | sim         | Unidade Federativa (ex: MT)          |
+| fotos[]         | arquivo | não         | Imagens (um ou mais arquivos)        |
+
+---
+
+#### Body:
+
+```json
+{
+    "matricula": "20250003",
+    "nome": "Pedro Santos",
+    "data_nascimento": "1978-07-20",
+    "sexo": "Masculino",
+    "mae": "Mariana Santos",
+    "pai": "José Santos",
+    "tipo_logradouro": "Rua",
+    "logradouro": "Rua das Flores",
+    "numero": 203,
+    "bairro": "Jardim Imperial",
+    "cidade": "Rondonópolis",
+    "uf": "MT"
+}
+```
+
+### `PUT /api/servidor-efetivo/{matricula}`
+
+Atualiza os dados de um servidor efetivo existente.
+
+#### Body (multipart/form-data):
+
+| Campo           | Tipo    | Obrigatório | Descrição                             |
+| --------------- | ------- | ----------- | ------------------------------------- |
+| matricula       | string  | sim         | Matrícula do servidor                 |
+| nome            | string  | sim         | Nome completo                         |
+| data_nascimento | date    | sim         | Data de nascimento (YYYY-MM-DD)       |
+| sexo            | string  | sim         | Masculino ou Feminino                 |
+| mae             | string  | sim         | Nome da mãe                           |
+| pai             | string  | não         | Nome do pai                           |
+| tipo_logradouro | string  | sim         | Tipo do logradouro (Rua, Avenida...)  |
+| logradouro      | string  | sim         | Nome da rua                           |
+| numero          | integer | sim         | Número do endereço                    |
+| bairro          | string  | sim         | Bairro                                |
+| cidade          | string  | sim         | Cidade                                |
+| uf              | string  | sim         | Unidade Federativa (ex: MT)           |
+| fotos[]         | arquivo | não         | Novas imagens a serem adicionadas     |
+| remover_fotos[] | integer | não         | IDs das fotos que devem ser removidas |
+
+---
+
+### `DELETE /api/servidor-efetivo/{matricula}`
+
+Remove um servidor efetivo.
+
+---
+
+## 🕒 Servidor Temporário
+
+### `GET /api/servidor-temporario`
+
+Lista os servidores temporários.
+
+### `GET /api/servidor-temporario/{id}`
+
+Retorna os dados de um servidor temporário.
+
+### `POST /api/servidor-temporario`
+
+Cria um novo servidor temporário.
+
+#### Body (multipart/form-data):
+
+| Campo           | Tipo    | Descrição                       |
+| --------------- | ------- | ------------------------------- |
+| nome            | string  | Nome completo                   |
+| data_nascimento | date    | Data de nascimento (YYYY-MM-DD) |
+| sexo            | string  | Masculino/Feminino              |
+| mae             | string  | Nome da mãe                     |
+| pai             | string  | Nome do pai (opcional)          |
+| tipo_logradouro | string  | Tipo do logradouro              |
+| logradouro      | string  | Nome da rua/avenida             |
+| numero          | integer | Número                          |
+| bairro          | string  | Bairro                          |
+| cidade          | string  | Cidade                          |
+| uf              | string  | Estado (UF)                     |
+| data_admissao   | date    | Data de admissão (YYYY-MM-DD)   |
+| fotos[]         | arquivo | Upload de fotos (múltiplas)     |
+
+---
+
+Cria um novo servidor temporário.
+
+### `PUT /api/servidor-temporario/{id}`
+
+Atualiza um servidor temporário existente.
+
+### `DELETE /api/servidor-temporario/{id}`
+
+Remove um servidor temporário.
+
+---
+
+## 📌 Lotação
+
+### `GET /api/lotacao`
+
+Lista as lotações registradas.
+
+### `GET /api/lotacao/{id}`
+
+Retorna detalhes da lotação.
+
+### `POST /api/lotacao`
+
+Cria nova lotação.
+
+#### Body (JSON):
+
+```json
+{
+    "pes_id": 50,
+    "unid_id": 12,
+    "lot_data_lotacao": "2012-06-19",
+    "lot_data_remocao": null,
+    "lot_portaria": "001/2012"
+}
+```
+
+---
+
+Cria nova lotação.
+
+### `PUT /api/lotacao/{id}`
+
+Atualiza lotação.
+
+---
+
+## 🔍 Consultas
+
+### `GET /api/consultas/servidores-efetivos/por-unidade/{id}`
+
+Lista servidores efetivos lotados na unidade especificada.
+
+### `GET /api/consultas/servidores-efetivos/endereco-funcional`
+
+Consulta por nome com paginação:
+
+```json
+{
+    "nome": "Doug",
+    "per_page": 2
+}
+```
+
+---
+
+## 🔐 Headers obrigatórios (quando autenticado)
+
+-   `Authorization: Bearer {token}`
+-   `Accept: application/json`
+-   `Content-Type: application/json` ou `multipart/form-data`------
+
+## 📄 Paginação
+
+Todas as listagens da API são paginadas por padrão com base em um helper customizado.
+
+Você pode utilizar os seguintes parâmetros na query:
+
+| Parâmetro  | Descrição                      | Padrão |
+| ---------- | ------------------------------ | ------ |
+| `per_page` | Quantidade de itens por página | 10     |
+| `page`     | Número da página atual         | 1      |
+
+O helper trata automaticamente tanto coleções em memória quanto queries do Eloquent, mantendo a estrutura esperada de paginação padrão do Laravel:
+
+### Exemplo de resposta paginada:
+
+```json
+{
+  "data": [ ... ],
+  "links": {
+    "first": "http://.../page=1",
+    "last": "http://.../page=10",
+    "prev": null,
+    "next": "http://.../page=2"
+  },
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 10,
+    "path": "http://...",
+    "per_page": 10,
+    "to": 10,
+    "total": 100
+  }
+}
+```
