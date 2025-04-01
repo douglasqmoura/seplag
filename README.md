@@ -1,332 +1,140 @@
-# 📘 Documentação da API - Cadastro de Servidores
+# API de Cadastro de Servidores
 
-Esta API foi desenvolvida para a gestão de servidores públicos, com cadastro e consulta de servidores efetivos e temporários, unidades, lotações e funcionalidades de autenticação.
+Este projeto implementa uma API RESTful desenvolvida com Laravel, como parte do projeto prático para a vaga de Desenvolvedor PHP prevista no edital SEPLAG/MT 002/2025. A solução tem como objetivo a gestão de pessoas e seus vínculos funcionais, abrangendo servidores temporários e efetivos, unidades organizacionais, lotações e endereços, conforme o modelo de dados fornecido.
 
-Abaixo estão descritos os principais endpoints, regras de autenticação e exemplos de requisição.
+## 👤 Dados de Inscrição
+
+-   **Nome:** Douglas de Quadros Moura
+-   **Inscrição:** 8514
+-   **E-mail:** douglas@dabliotecnologia.com.br
 
 ---
 
-## 🔐 Autenticação
+## 🚀 Como executar o projeto
 
-### `POST /api/login`
+### Pré-requisitos
 
-Autentica um usuário e retorna um token de acesso gerenciado pelo Laravel Sanctum.
+-   [Docker](https://www.docker.com/)
+-   [Docker Compose](https://docs.docker.com/compose/)
 
-#### Body:
+### Passos para execução
+
+1. Clone o repositório:
+
+    ```bash
+    git clone <URL_DO_REPOSITORIO>
+    cd <NOME_DA_PASTA>
+    ```
+
+2. Crie o arquivo `.env`:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+3. Suba os containers:
+
+    ```bash
+    docker-compose up -d
+    ```
+
+4. Acesse o container da aplicação (caso queira executar comandos Artisan):
+
+    ```bash
+    docker exec -it app bash
+    ```
+
+5. Execute as migrations:
+    ```bash
+    php artisan migrate
+    ```
+
+---
+
+## 🔌 Endpoints Principais (exemplos)
+
+Em construção. Abaixo um exemplo genérico de estrutura esperada:
+
+### `GET /api/servidores-temporarios`
+
+Retorna a lista de servidores temporários.
+
+### `POST /api/servidores-temporarios`
+
+Cadastra um novo servidor temporário.  
+**Body (JSON):**
 
 ```json
 {
-    "email": "admin@seplag.mt.gov.br",
-    "password": "senha123"
-}
-```
-
-#### Response Esperada:
-
-```json
-{
-    "token": "20|YDeY948TAdhSeZkvQ12ZnnC2XTPMPPR5n7WHvdgJab8853a7",
-    "expires_at": "2025-04-01 20:58:30"
-}
-```
-
-> ⚠️ O token tem validade de **5 minutos**. Caso ainda esteja válido, você pode renová-lo com o endpoint abaixo:
-
-### `POST /api/refresh-token`
-
-Renova a validade do token atual por mais 5 minutos (mantém o mesmo token ativo).
-
-#### Headers:
-
--   `Authorization: Bearer {token}`
--   `Accept: application/json`
-
-#### Response Esperada:
-
-```json
-{
-    "token": "20|YDeY948TAdhSeZkvQ12ZnnC2XTPMPPR5n7WHvdgJab8853a7",
-    "expires_at": "2025-04-01 21:03:30"
-}
-```
-
----
-
-## 👥 Tipos de Usuário e Permissões
-
-A API possui dois tipos de usuários:
-
-| Tipo  | E-mail                 | Senha    | Permissões                            |
-| ----- | ---------------------- | -------- | ------------------------------------- |
-| Admin | admin@seplag.mt.gov.br | senha123 | Pode acessar e modificar (CRUD total) |
-| Comum | guest@seplag.mt.gov.br | senha123 | Acesso somente leitura (GET)          |
-
-⚠️ Apenas usuários do tipo **Admin** podem realizar operações de gravação: `POST`, `PUT`, `PATCH`, `DELETE`.
-
----
-
-## 🏢 Unidades
-
-### `GET /api/unidade`
-
-Retorna a lista de unidades.
-
-### `GET /api/unidade/{id}`
-
-Retorna uma unidade específica.
-
-### `POST /api/unidade`
-
-Cria uma nova unidade.
-
-#### Body:
-
-```json
-{
-    "unid_nome": "Secretaria de Educação",
-    "unid_sigla": "SEDUC",
-    "end_tipo_logradouro": "Rua",
-    "end_logradouro": "Av. Historiador Rubens de Mendonça",
-    "end_numero": 1234,
-    "end_bairro": "CPA",
-    "cid_nome": "Cuiabá",
-    "cid_uf": "MT"
-}
-```
-
-### `PUT /api/unidade/{id}`
-
-Atualiza os dados de uma unidade.
-
-### `DELETE /api/unidade/{id}`
-
-Remove uma unidade.
-
----
-
-## 👤 Servidor Efetivo
-
-### `GET /api/servidor-efetivo`
-
-Lista todos os servidores efetivos.
-
-### `GET /api/servidor-efetivo/{matricula}`
-
-Busca um servidor pelo número de matrícula.
-
-### `POST /api/servidor-efetivo`
-
-Cria um novo servidor efetivo.
-
-#### Body (multipart/form-data):
-
-| Campo           | Tipo    | Obrigatório | Descrição                            |
-| --------------- | ------- | ----------- | ------------------------------------ |
-| matricula       | string  | sim         | Matrícula do servidor                |
-| nome            | string  | sim         | Nome completo                        |
-| data_nascimento | date    | sim         | Data de nascimento (YYYY-MM-DD)      |
-| sexo            | string  | sim         | Masculino, Feminino ou Outro         |
-| mae             | string  | sim         | Nome da mãe                          |
-| pai             | string  | não         | Nome do pai                          |
-| tipo_logradouro | string  | sim         | Tipo do logradouro (Rua, Avenida...) |
-| logradouro      | string  | sim         | Nome da rua                          |
-| numero          | integer | sim         | Número do endereço                   |
-| bairro          | string  | sim         | Bairro                               |
-| cidade          | string  | sim         | Cidade                               |
-| uf              | string  | sim         | Unidade Federativa (ex: MT)          |
-| fotos[]         | arquivo | não         | Imagens (um ou mais arquivos)        |
-
----
-
-#### Body:
-
-```json
-{
-    "matricula": "20250003",
-    "nome": "Pedro Santos",
-    "data_nascimento": "1978-07-20",
-    "sexo": "Masculino",
-    "mae": "Mariana Santos",
-    "pai": "José Santos",
-    "tipo_logradouro": "Rua",
-    "logradouro": "Rua das Flores",
-    "numero": 203,
-    "bairro": "Jardim Imperial",
-    "cidade": "Rondonópolis",
-    "uf": "MT"
-}
-```
-
-### `PUT /api/servidor-efetivo/{matricula}`
-
-Atualiza os dados de um servidor efetivo existente.
-
-#### Body (multipart/form-data):
-
-| Campo           | Tipo    | Obrigatório | Descrição                             |
-| --------------- | ------- | ----------- | ------------------------------------- |
-| matricula       | string  | sim         | Matrícula do servidor                 |
-| nome            | string  | sim         | Nome completo                         |
-| data_nascimento | date    | sim         | Data de nascimento (YYYY-MM-DD)       |
-| sexo            | string  | sim         | Masculino ou Feminino                 |
-| mae             | string  | sim         | Nome da mãe                           |
-| pai             | string  | não         | Nome do pai                           |
-| tipo_logradouro | string  | sim         | Tipo do logradouro (Rua, Avenida...)  |
-| logradouro      | string  | sim         | Nome da rua                           |
-| numero          | integer | sim         | Número do endereço                    |
-| bairro          | string  | sim         | Bairro                                |
-| cidade          | string  | sim         | Cidade                                |
-| uf              | string  | sim         | Unidade Federativa (ex: MT)           |
-| fotos[]         | arquivo | não         | Novas imagens a serem adicionadas     |
-| remover_fotos[] | integer | não         | IDs das fotos que devem ser removidas |
-
----
-
-### `DELETE /api/servidor-efetivo/{matricula}`
-
-Remove um servidor efetivo.
-
----
-
-## 🕒 Servidor Temporário
-
-### `GET /api/servidor-temporario`
-
-Lista os servidores temporários.
-
-### `GET /api/servidor-temporario/{id}`
-
-Retorna os dados de um servidor temporário.
-
-### `POST /api/servidor-temporario`
-
-Cria um novo servidor temporário.
-
-#### Body (multipart/form-data):
-
-| Campo           | Tipo    | Descrição                       |
-| --------------- | ------- | ------------------------------- |
-| nome            | string  | Nome completo                   |
-| data_nascimento | date    | Data de nascimento (YYYY-MM-DD) |
-| sexo            | string  | Masculino/Feminino              |
-| mae             | string  | Nome da mãe                     |
-| pai             | string  | Nome do pai (opcional)          |
-| tipo_logradouro | string  | Tipo do logradouro              |
-| logradouro      | string  | Nome da rua/avenida             |
-| numero          | integer | Número                          |
-| bairro          | string  | Bairro                          |
-| cidade          | string  | Cidade                          |
-| uf              | string  | Estado (UF)                     |
-| data_admissao   | date    | Data de admissão (YYYY-MM-DD)   |
-| fotos[]         | arquivo | Upload de fotos (múltiplas)     |
-
----
-
-Cria um novo servidor temporário.
-
-### `PUT /api/servidor-temporario/{id}`
-
-Atualiza um servidor temporário existente.
-
-### `DELETE /api/servidor-temporario/{id}`
-
-Remove um servidor temporário.
-
----
-
-## 📌 Lotação
-
-### `GET /api/lotacao`
-
-Lista as lotações registradas.
-
-### `GET /api/lotacao/{id}`
-
-Retorna detalhes da lotação.
-
-### `POST /api/lotacao`
-
-Cria nova lotação.
-
-#### Body (JSON):
-
-```json
-{
-    "pes_id": 50,
-    "unid_id": 12,
-    "lot_data_lotacao": "2012-06-19",
-    "lot_data_remocao": null,
-    "lot_portaria": "001/2012"
+    "pes_id": 1,
+    "st_data_admissao": "2023-01-10",
+    "st_data_demissao": "2023-12-01"
 }
 ```
 
 ---
 
-Cria nova lotação.
+## 🧪 Testes com Insomnia
 
-### `PUT /api/lotacao/{id}`
+Você pode testar todos os endpoints da API utilizando a collection abaixo no [Insomnia](https://insomnia.rest/):
 
-Atualiza lotação.
+📥 [Download da Collection](./docs/Insomnia_2025-04-01.json)
 
----
+### Como usar:
 
-## 🔍 Consultas
+1. Baixe a collection
+2. Abra o Insomnia
+3. Vá em `Application` → `Import Data` → `From File`
+4. Selecione o arquivo `.json` importado
+5. Configure o ambiente com as variáveis:
+    - `base_url`: `http://localhost/api`
+    - `token`: (gerado após o login, já está incluído para teste local)
 
-### `GET /api/consultas/servidores-efetivos/por-unidade/{id}`
-
-Lista servidores efetivos lotados na unidade especificada.
-
-### `GET /api/consultas/servidores-efetivos/endereco-funcional`
-
-Consulta por nome com paginação:
-
-```json
-{
-    "nome": "Doug",
-    "per_page": 2
-}
-```
+Pronto! Agora você pode testar todos os endpoints da API de forma rápida e estruturada.
 
 ---
 
-## 🔐 Headers obrigatórios (quando autenticado)
+---
 
--   `Authorization: Bearer {token}`
--   `Accept: application/json`
--   `Content-Type: application/json` ou `multipart/form-data`------
+## 📎 Observação sobre uploads de imagem
 
-## 📄 Paginação
+Alguns endpoints da API utilizam `multipart/form-data` para envio de imagens:
 
-Todas as listagens da API são paginadas por padrão com base em um helper customizado.
+-   `POST /api/servidor-efetivo`
+-   `PUT /api/servidor-efetivo/{matricula}`
+-   `POST /api/servidor-temporario`
+-   `PUT /api/servidor-temporario/{id}`
 
-Você pode utilizar os seguintes parâmetros na query:
+Nestes casos, é possível enviar múltiplas imagens pelo campo `fotos[]`, bem como remover imagens existentes via `remover_fotos[]`.
 
-| Parâmetro  | Descrição                      | Padrão |
-| ---------- | ------------------------------ | ------ |
-| `per_page` | Quantidade de itens por página | 10     |
-| `page`     | Número da página atual         | 1      |
+---
 
-O helper trata automaticamente tanto coleções em memória quanto queries do Eloquent, mantendo a estrutura esperada de paginação padrão do Laravel:
+## 📘 Documentação dos Endpoints
 
-### Exemplo de resposta paginada:
+A documentação completa dos endpoints da API está disponível em:
 
-```json
-{
-  "data": [ ... ],
-  "links": {
-    "first": "http://.../page=1",
-    "last": "http://.../page=10",
-    "prev": null,
-    "next": "http://.../page=2"
-  },
-  "meta": {
-    "current_page": 1,
-    "from": 1,
-    "last_page": 10,
-    "path": "http://...",
-    "per_page": 10,
-    "to": 10,
-    "total": 100
-  }
-}
-```
+👉 [API_DOC.md](./API_DOC.md)
+
+---
+
+## 🗃️ Diagrama do Banco de Dados
+
+O projeto segue o modelo abaixo para gerenciamento de entidades como `pessoa`, `unidade`, `servidor_temporario`, `servidor_efetivo`, `lotacao`, `endereco` e outras relacionadas.
+
+> ![Diagrama ER](./docs/diagrama.png)
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+-   PHP 8+
+-   Laravel 12+
+-   Docker + Docker Compose
+-   PostgreSQL
+-   MinIO (para armazenamento de fotos)
+
+---
+
+## 📄 Licença
+
+Este projeto está licenciado sob os termos do edital SEPLAG/MT 002/2025.

@@ -15,6 +15,7 @@ class LotacaoResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->lot_id,
             'data_lotacao' => $this->lot_data_lotacao,
             'data_remocao' => $this->lot_data_remocao,
             'portaria' => $this->lot_portaria,
