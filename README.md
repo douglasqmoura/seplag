@@ -1,6 +1,6 @@
 # API de Cadastro de Servidores
 
-Este projeto implementa uma API RESTful desenvolvida com Laravel, como parte do projeto prático para a vaga de Desenvolvedor PHP prevista no edital SEPLAG/MT 002/2025. A solução tem como objetivo a gestão de pessoas e seus vínculos funcionais, abrangendo servidores temporários e efetivos, unidades organizacionais, lotações e endereços, conforme o modelo de dados fornecido.
+Este projeto implementa uma API REST desenvolvida em PHP utilizando o framework Laravel, como parte do projeto prático para a vaga de Desenvolvedor PHP prevista no edital SEPLAG/MT 002/2025. A solução tem como objetivo a gestão de pessoas e seus vínculos funcionais, abrangendo servidores temporários e efetivos, unidades organizacionais, lotações e endereços, conforme o modelo de dados fornecido.
 
 ## 👤 Dados de Inscrição
 
@@ -94,8 +94,8 @@ O projeto segue o modelo abaixo para gerenciamento de entidades como `pessoa`, `
 
 ## 🛠️ Tecnologias Utilizadas
 
--   PHP 8+
--   Laravel 12+
+-   PHP 8.2
+-   Laravel 12
 -   Docker + Docker Compose
 -   PostgreSQL
 -   MinIO (para armazenamento de fotos)
